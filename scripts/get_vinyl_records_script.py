@@ -136,10 +136,10 @@ def get_records_for_sale(album: Album) -> Album | None:
 
 
 def main():
-    artist_data = get_albums_for_artist(ARTIST_URL)
     records_for_sale = []
+    artist = get_albums_for_artist(ARTIST_URL)
 
-    for album in artist_data.albums:
+    for album in artist.albums:
         records = get_records_for_sale(album)
 
         if records is None:
