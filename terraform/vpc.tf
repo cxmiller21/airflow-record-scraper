@@ -23,11 +23,6 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-resource "aws_internet_gateway_attachment" "main" {
-  internet_gateway_id = aws_internet_gateway.main.id
-  vpc_id              = aws_vpc.main.id
-}
-
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.192.10.0/24"
@@ -74,21 +69,34 @@ resource "aws_subnet" "private_2" {
 
 resource "aws_eip" "public_1" {
   vpc        = true
-  depends_on = [aws_internet_gateway_attachment.main]
+  depends_on = [aws_internet_gateway.main]
 }
 
 resource "aws_eip" "public_2" {
   vpc        = true
-  depends_on = [aws_internet_gateway_attachment.main]
+  depends_on = [aws_internet_gateway.main]
 }
 
 resource "aws_nat_gateway" "public_1" {
-  subnet_id  = aws_subnet.public_1.id
+  allocation_id     = aws_eip.public_1.id
+  connectivity_type = "public"
+  subnet_id         = aws_subnet.public_1.id
+
+  tags = {
+    Name = "airflow gw NAT public_1"
+  }
+
   depends_on = [aws_internet_gateway.main]
 }
 
 resource "aws_nat_gateway" "public_2" {
-  subnet_id  = aws_subnet.public_2.id
+  allocation_id     = aws_eip.public_2.id
+  connectivity_type = "public"
+  subnet_id         = aws_subnet.public_2.id
+
+  tags = {
+    Name = "airflow gw NAT public_2"
+  }
   depends_on = [aws_internet_gateway.main]
 }
 
@@ -107,11 +115,6 @@ resource "aws_route_table" "public" {
   tags = {
     "Name" = "Main-Region-RT-Airflow-Public"
   }
-}
-
-resource "aws_main_route_table_association" "public" {
-  vpc_id         = aws_vpc.main.id
-  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "public_1" {
@@ -141,11 +144,6 @@ resource "aws_route_table" "private_1" {
   }
 }
 
-resource "aws_main_route_table_association" "private_1" {
-  vpc_id         = aws_vpc.main.id
-  route_table_id = aws_route_table.private_1.id
-}
-
 resource "aws_route_table_association" "private_1" {
   subnet_id      = aws_subnet.private_1.id
   route_table_id = aws_route_table.private_1.id
@@ -166,11 +164,6 @@ resource "aws_route_table" "private_2" {
   tags = {
     "Name" = "Main-Region-RT-Airflow-Private-2"
   }
-}
-
-resource "aws_main_route_table_association" "private_2" {
-  vpc_id         = aws_vpc.main.id
-  route_table_id = aws_route_table.private_1.id
 }
 
 resource "aws_route_table_association" "private_2" {
