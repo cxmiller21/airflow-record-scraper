@@ -1,4 +1,6 @@
-# Airflow Local
+# Airflow Recrod Scraper
+
+![Airflow Record Scraper](images/vinyl_record_scraper_de_iagram.png)
 
 ## Running Airflow
 
