@@ -5,14 +5,14 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
 
-LIMIT = "500"
+LIMIT = "10"
 
 ARTIST = "119485-Tatsuro-Yamashita"
 BASE_URL = "https://www.discogs.com"
 ARTIST_URL = f"{BASE_URL}/artist/{ARTIST}"
 ALBUM_URL = f"{ARTIST_URL}?limit={LIMIT}&type=Releases&subtype=Albums&filter_anv=0"
 
-EXPORT_FILE_NAME = f"./exports/{ARTIST}_records_for_sale.csv"
+EXPORT_FILE_NAME = f"../exports/{ARTIST}_records_for_sale.csv"
 
 
 @dataclass
@@ -34,7 +34,8 @@ class Artist:
 
 def get_bs4_data(url: str) -> BeautifulSoup:
     """Get beautiful soup data based on url"""
-    page = requests.get(url)
+    headers = {"User-Agent":"Mozilla/5.0"}
+    page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.content, "html.parser")
     return soup
 
@@ -54,6 +55,7 @@ def get_albums_for_artist(url: str) -> Artist:
     """Returns a list of albums for the artist"""
     artist = Artist(albums=[])
     raw_artist_data = get_bs4_data(url)
+    # print(raw_artist_data)
     table_rows = raw_artist_data.find("table", class_="cards").findAll(
         "tr", class_="card"
     )

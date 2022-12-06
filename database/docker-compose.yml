@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3306:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_USER: airflow
+        MYSQL_PASSWORD: root
+        MYSQL_ROOT_HOST: '%'
